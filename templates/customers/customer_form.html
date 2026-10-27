@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} customer{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-7"><div class="card shadow-sm"><div class="card-body p-4">
+  <h1 class="h4 mb-3">{% if object %}Edit customer{% else %}Add customer{% endif %}</h1>
+  <form method="post">{% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <button class="btn btn-primary">Save customer</button>
+    <a class="btn btn-link" href="{% url 'customer-list' %}">Cancel</a>
+  </form>
+</div></div></div></div>
+{% endblock %}
