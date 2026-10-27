@@ -1,31 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Dashboard</h1>
-  <a class="btn btn-primary" href="{% url 'ticket-create' %}">New ticket</a>
+<div class="page-head">
+  <div>
+    <h1 class="h3">Hello, {{ user.first_name|default:user.username }}</h1>
+    <p>Here is where your service requests stand today.</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'ticket-create' %}"><i class="bi bi-plus-lg me-1"></i>New ticket</a>
 </div>
 <div class="row g-3 mb-4">
   {% if stats.customers is not None %}
-  <div class="col-6 col-lg"><div class="card stat shadow-sm"><div class="card-body"><div class="text-muted small">Customers</div><div class="num">{{ stats.customers }}</div></div></div></div>
+  <div class="col-6 col-xl"><div class="card stat"><span class="ico teal"><i class="bi bi-people"></i></span><div><div class="lbl">Customers</div><div class="num">{{ stats.customers }}</div></div></div></div>
   {% endif %}
-  <div class="col-6 col-lg"><div class="card stat shadow-sm"><div class="card-body"><div class="text-muted small">Open tickets</div><div class="num">{{ stats.open }}</div></div></div></div>
-  <div class="col-6 col-lg"><div class="card stat shadow-sm"><div class="card-body"><div class="text-muted small">In progress</div><div class="num">{{ stats.in_progress }}</div></div></div></div>
-  <div class="col-6 col-lg"><div class="card stat shadow-sm"><div class="card-body"><div class="text-muted small">Completed</div><div class="num">{{ stats.completed }}</div></div></div></div>
+  <div class="col-6 col-xl"><div class="card stat"><span class="ico red"><i class="bi bi-exclamation-circle"></i></span><div><div class="lbl">Open tickets</div><div class="num">{{ stats.open }}</div></div></div></div>
+  <div class="col-6 col-xl"><div class="card stat"><span class="ico amber"><i class="bi bi-arrow-repeat"></i></span><div><div class="lbl">In progress</div><div class="num">{{ stats.in_progress }}</div></div></div></div>
+  <div class="col-6 col-xl"><div class="card stat"><span class="ico green"><i class="bi bi-check2-circle"></i></span><div><div class="lbl">Completed</div><div class="num">{{ stats.completed }}</div></div></div></div>
 </div>
 <div class="row g-3">
-  <div class="col-lg-7"><div class="card shadow-sm"><div class="card-body">
-    <h2 class="h6">Monthly tickets (last 6 months)</h2>
-    <canvas id="monthly" height="140"></canvas>
+  <div class="col-lg-7"><div class="card h-100"><div class="card-body p-4">
+    <h2 class="h6 mb-3">Tickets per month</h2>
+    <canvas id="monthly" height="150"></canvas>
   </div></div></div>
-  <div class="col-lg-5"><div class="card shadow-sm"><div class="card-body">
-    <h2 class="h6">Recent tickets</h2>
+  <div class="col-lg-5"><div class="card h-100"><div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h6 mb-0">Recent tickets</h2><a class="small fw-bold text-decoration-none" href="{% url 'ticket-list' %}">View all</a>
+    </div>
+    <div class="recent">
     {% for t in recent %}
-      <a class="d-flex justify-content-between text-decoration-none text-body py-2 border-bottom" href="{% url 'ticket-detail' t.pk %}">
-        <span>{{ t.title }}<br><small class="text-muted">{{ t.customer.name }}</small></span>
-        <span class="badge text-bg-{{ t.status_badge }} align-self-center">{{ t.get_status_display }}</span>
+      <a href="{% url 'ticket-detail' t.pk %}">
+        <span><span class="t">{{ t.title }}</span><br><small>{{ t.customer.name }}</small></span>
+        <span class="badge text-bg-{{ t.status_badge }}">{{ t.get_status_display }}</span>
       </a>
     {% empty %}<p class="text-muted mb-0">No tickets yet. <a href="{% url 'ticket-create' %}">Create the first one.</a></p>{% endfor %}
+    </div>
   </div></div></div>
 </div>
 {{ chart_data|json_script:"chart-data" }}
@@ -34,12 +41,17 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
   const d = JSON.parse(document.getElementById('chart-data').textContent);
+  Chart.defaults.font.family = "'Manrope', sans-serif";
+  Chart.defaults.color = '#5f7479';
   new Chart(document.getElementById('monthly'), {
     type: 'bar',
     data: { labels: d.labels, datasets: [
-      { label: 'Created', data: d.created, backgroundColor: '#0d6efd' },
-      { label: 'Completed', data: d.completed, backgroundColor: '#198754' } ] },
-    options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      { label: 'Created', data: d.created, backgroundColor: '#a9c4c9', borderRadius: 6, maxBarThickness: 28 },
+      { label: 'Completed', data: d.completed, backgroundColor: '#0e7c86', borderRadius: 6, maxBarThickness: 28 } ] },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#e9eff1' } } }
+    }
   });
 </script>
 {% endblock %}

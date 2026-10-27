@@ -7,7 +7,7 @@ Django 5 + DRF + PostgreSQL. Roles: Admin, Employee, Customer.
     .venv\Scripts\activate
     pip install -r requirements.txt
     python manage.py migrate
-    python manage.py seed_demo        # optional demo data (local only)
+    python manage.py seed_de mo        # optional demo data (local only)
     python manage.py runserver
 Open http://127.0.0.1:8000  (seed logins: admin/admin12345, ravi/employee123, customer1/customer123)
 
